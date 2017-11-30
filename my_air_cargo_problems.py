@@ -60,8 +60,21 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             loads = []
-            # TODO create all load ground actions from the domain Load action
+            for cargo in self.cargos:
+                for plane in self.planes:
+                    for airport in self.airports:
+                        precond_pos = [expr("At({}, {})".format(plane, airport)),
+                                       expr("At({}, {})".format(cargo, airport))]
+                        precond_neg = []
+                        effect_add = [expr("In({}, {})".format(cargo, plane))]
+                        effect_rem = [expr("At({}, {})".format(cargo, airport))]
+                        load_action = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),
+                                      [precond_pos, precond_neg],
+                                      [effect_add, effect_rem])
+                        loads.append(load_action)
+
             return loads
+
 
         def unload_actions():
             """Create all concrete Unload actions and return a list
@@ -69,7 +82,19 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
+            for cargo in self.cargos:
+                for plane in self.planes:
+                    for airport in self.airports:
+                        precond_pos = [expr("At({}, {})".format(plane, airport)),
+                                       expr("In({}, {})".format(cargo, plane))]
+                        precond_neg = []
+                        effect_add = [expr("At({}, {})".format(cargo, airport))]
+                        effect_rem = [expr("In({}, {})".format(cargo, plane))]
+                        unload_action = Action(expr("Unload({}, {}, {})".format(cargo, plane, airport)),
+                                      [precond_post, precond_neg],
+                                      [effect_add, effect_rem])
+                        unloads.append(unload_action)
+
             return unloads
 
         def fly_actions():
