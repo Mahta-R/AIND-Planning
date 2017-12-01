@@ -127,11 +127,23 @@ class AirCargoProblem(Problem):
             state represented as T/F string of mapped fluents (state variables)
             e.g. 'FTTTFF'
         :return: list of Action objects
+        # TODO implement
         """
 
-        # TODO implement
         possible_actions = []
-        print("state is: ", decode_state(state, self.state_map))
+        kb = PropKB()
+        kb.tell(decode_state(state, self.state_map).pos_sentence())
+
+        for action in self.actions_list:
+            allowed_action = True
+            for clause in action.precond_pos:
+                if clause not in kb.clauses:
+                    allowed_action = False
+            for clause in action.precond_neg:
+                if clause in kb.clauses:
+                    allowed_action = False
+            if allowed_action:
+                possible_actions.append(action)
 
         return possible_actions
 
@@ -146,7 +158,31 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         new_state = FluentState([], [])
+        old_state = decode_state(state, self.state_map)
+
+        for pos in old_state.pos:
+            if pos not in new_state.pos:
+                new_state.pos.append(pos)
+            if pos in new_state.neg:
+                new_state.neg.remove(pos)
+        for neg in old_state.neg:
+            if neg in new_state.pos:
+                new_state.pos.remove(neg)
+            if neg not in new_state.neg:
+                new_state.neg.append(neg)
+        for pos in action.effect_add:
+            if pos not in new_state.pos:
+                new_state.pos.append(pos)
+            if pos in new_state.neg:
+                new_state.neg.remove(pos)
+        for neg in action.effect_rem:
+            if neg in new_state.pos:
+                new_state.pos.remove(neg)
+            if neg not in new_state.neg:
+                new_state.neg.append(neg)
+
         return encode_state(new_state, self.state_map)
+
 
     def goal_test(self, state: str) -> bool:
         """ Test the state to see if goal is reached
@@ -186,7 +222,13 @@ class AirCargoProblem(Problem):
         executed.
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
+
         count = 0
+        kb = PropKB()
+        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+        for clause in self.goal:
+            if clause not in kb.clauses:
+                count += 1
         return count
 
 
