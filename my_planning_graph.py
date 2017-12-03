@@ -433,25 +433,23 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Interference between nodes
-        is_interference = False
-
         for eff_add in node_a1.action.effect_add:
             if eff_add in node_a2.action.precond_neg:
-                is_interference = True
+                return True
 
         for eff_rem in node_a1.action.effect_rem:
             if eff_rem in node_a2.action.precond_pos:
-                is_interference = True
+                return True
 
         for eff_add in node_a2.action.effect_add:
             if eff_add in node_a1.action.precond_neg:
-                is_interference = True
+                return True
 
         for eff_rem in node_a2.action.effect_rem:
             if eff_rem in node_a1.action.precond_pos:
-                is_interference = True
+                return True
 
-        return is_interference
+        return False
 
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -466,6 +464,10 @@ class PlanningGraph():
         """
 
         # TODO test for Competing Needs between nodes
+        # for precondition in node_a1.prenodes:
+        #     if precondition in node_a2.prenodes:
+        #         return True
+        #
         return False
 
     def update_s_mutex(self, nodeset: set):
