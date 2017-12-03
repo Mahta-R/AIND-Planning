@@ -416,6 +416,11 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Effects between nodes
+        for eff1 in node_a1.effnodes:
+            for eff2 in node_a2.effnodes:
+                if self.negation_mutex(eff1, eff2):
+                    return True
+
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -544,5 +549,20 @@ class PlanningGraph():
         # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
 
+        for goal in self.problem.goal:
+            reached_goal = False
+            for level, states in enumerate(self.s_levels):
+                # abort early optimization
+                if reached_goal:
+                    break
+                for s_node in states:
+                    if goal == s_node.symbol:
+                        level_sum = level+1
+                        reached_goal = True
+                        break
+
+            # no goal, unsolvable
+            if not reached_goal:
+                return float('Inf')
 
         return level_sum
