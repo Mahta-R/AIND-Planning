@@ -433,7 +433,26 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Interference between nodes
-        return False
+        is_interference = False
+
+        for eff_add in node_a1.action.effect_add:
+            if eff_add in node_a2.action.precond_neg:
+                is_interference = True
+
+        for eff_rem in node_a1.action.effect_rem:
+            if eff_rem in node_a2.action.precond_pos:
+                is_interference = True
+
+        for eff_add in node_a2.action.effect_add:
+            if eff_add in node_a1.action.precond_neg:
+                is_interference = True
+
+        for eff_rem in node_a2.action.effect_rem:
+            if eff_rem in node_a1.action.precond_pos:
+                is_interference = True
+
+        return is_interference
+
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
         """
@@ -506,7 +525,7 @@ class PlanningGraph():
         s2_parent_actions = node_s2.parents
 
         for s1_a in s1_parent_actions:
-            s2_a in s2_parent_actions:
+            for s2_a in s2_parent_actions:
                 if not s1_a.is_mutex(s2_a):
                     is_mutex = False
 
