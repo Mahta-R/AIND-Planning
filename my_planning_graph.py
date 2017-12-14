@@ -416,10 +416,13 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Effects between nodes
-        for eff1 in node_a1.effnodes:
-            for eff2 in node_a2.effnodes:
-                if self.negation_mutex(eff1, eff2):
-                    return True
+        for eff_add in node_a1.action.effect_add:
+            if eff_add in node_a2.action.effect_rem:
+                return True
+
+        for eff_add in node_a2.action.effect_add:
+            if eff_add in node_a1.action.effect_rem:
+                return True
 
         return False
 
@@ -556,8 +559,8 @@ class PlanningGraph():
                 if reached_goal:
                     break
                 for s_node in states:
-                    if goal == s_node.symbol:
-                        level_sum = level+1
+                    if goal == s_node.symbol and s_node.is_pos:
+                        level_sum += level
                         reached_goal = True
                         break
 
